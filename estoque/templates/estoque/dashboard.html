@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Dashboard de Estoque</h1>
+
+    {% if qtd_baixo_estoque > 0 %}
+        <div class="alert alert-danger">
+            ⚠ Existem {{ qtd_baixo_estoque }} produto(s) com estoque abaixo do mínimo:
+            <ul class="mb-0 mt-2">
+                {% for produto in baixo_estoque %}
+                    <li>{{ produto.nome }} – {{ produto.quantidade }} unidade(s)</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="alert alert-success">
+            Todos os produtos estão com estoque adequado.
+        </div>
+    {% endif %}
+
+    <div class="mb-5">
+        <h4>Estoque por Categoria</h4>
+        <canvas id="graficoEstoque" height="100"></canvas>
+    </div>
+
+    <div class="mb-5">
+        <h4>Estoque por Produto</h4>
+        <canvas id="graficoProdutos" height="100"></canvas>
+    </div>
+
+    <a href="{% url 'listar_produtos' %}" class="btn btn-outline-secondary">← Voltar à Lista de Produtos</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const categorias = {{ categorias|default:"[]"|safe }};
+    const quantidades = {{ quantidades|default:"[]"|safe }};
+    const nomesProdutos = {{ nomes_produtos|default:"[]"|safe }};
+    const quantidadesProdutos = {{ quantidades_produtos|default:"[]"|safe }};
+    const cores = nomesProdutos.map((_, i) => `hsl(${i * 30 % 360}, 70%, 60%)`);
+
+    if (categorias.length && quantidades.length) {
+        new Chart(document.getElementById('graficoEstoque').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: categorias,
+                datasets: [{
+                    label: 'Quantidade por Categoria',
+                    data: quantidades,
+                    backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545'],
+                    borderColor: '#333',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Estoque Total por Categoria' }
+                },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    if (nomesProdutos.length && quantidadesProdutos.length) {
+        new Chart(document.getElementById('graficoProdutos').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: nomesProdutos,
+                datasets: [{
+                    data: quantidadesProdutos,
+                    backgroundColor: cores,
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'right' },
+                    title: { display: true, text: 'Estoque por Produto' }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Estoque{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Estoque</h1>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="busca" class="form-control" placeholder="Buscar por nome" value="{{ busca }}">
+    </div>
+    <div class="col-md-4">
+        <select name="categoria" class="form-select">
+            <option value="todas">Todas as Categorias</option>
+            <option value="alimentos" {% if categoria == "alimentos" %}selected{% endif %}>Alimentos</option>
+            <option value="limpeza" {% if categoria == "limpeza" %}selected{% endif %}>Produtos de Limpeza</option>
+            <option value="vestuario" {% if categoria == "vestuario" %}selected{% endif %}>Vestuário</option>
+            <option value="bazar" {% if categoria == "bazar" %}selected{% endif %}>Bazar</option>
+        </select>
+    </div>
+    <div class="col-md-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{% url 'listar_produtos' %}" class="btn btn-outline-secondary">Limpar</a>
+    </div>
+</form>
+
+<div class="mb-3 d-flex gap-2">
+    <a href="{% url 'adicionar_produto' %}" class="btn btn-success">Adicionar Produto</a>
+    <a href="{% url 'dashboard' %}" class="btn btn-info text-white">Ver Dashboard</a>
+    <a href="{% url 'exportar_excel' %}" class="btn btn-outline-success">Exportar Excel</a>
+    <a href="{% url 'exportar_pdf' %}" class="btn btn-outline-danger">Exportar PDF</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Quantidade</th>
+                <th>Preço</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produto in produtos %}
+                <tr class="{% if produto.quantidade < 5 %}table-danger{% endif %}">
+                    <td>{{ produto.nome }}</td>
+                    <td>{{ produto.get_categoria_display }}</td>
+                    <td>{{ produto.quantidade }}</td>
+                    <td>R$ {{ produto.preco }}</td>
+                    <td>
+                        <a href="{% url 'editar_produto' produto.id %}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{% url 'excluir_produto' produto.id %}" class="btn btn-sm btn-danger">Excluir</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhum produto encontrado.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+
