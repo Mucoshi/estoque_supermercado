@@ -1,6 +1,7 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Produto
-from .forms import ProdutoForm
+# Importações dos módulos necessários do Django para lidar com requisições, templates e permissões
+from django.shortcuts import render, redirect, get_object_or_404 
+from .models import Produto    # Importa o modelo Produto que representa os itens do estoque
+from .forms import ProdutoForm    # Importa o formulário para criar ou editar produtos
 from django.db.models import Sum, Count
 import openpyxl
 from django.http import HttpResponse
@@ -10,8 +11,8 @@ from django.db.models import Sum
 from django.utils.safestring import mark_safe
 from django.db.models import Count, Q
 from io import BytesIO
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required   # permission_required garante que o usuário tenha permissão específica para executar essa ação
+from django.contrib.auth.decorators import login_required   # login_required exige que o usuário esteja logado para acessar essa página
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth import logout
@@ -19,8 +20,8 @@ from django.db.models import F
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
 
-@login_required
-def listar_produtos(request):
+@login_required   # login_required exige que o usuário esteja logado para acessar essa página
+def listar_produtos(request):   # Essa função exibe a lista de produtos cadastrados no sistema, com filtros e destaques para estoque baixo
     produtos = Produto.objects.all()
     baixo_estoque = produtos.filter(quantidade__lte=F('estoque_minimo'))
     qtd_baixo_estoque = baixo_estoque.count()
@@ -32,7 +33,7 @@ def listar_produtos(request):
     })
 
 @login_required
-@permission_required('estoque.adicionar_produto', raise_exception=True)
+@permission_required('estoque.adicionar_produto', raise_exception=True)   # Essa função permite adicionar um novo produto ao estoque, desde que o usuário tenha permissão
 def adicionar_produto(request):
     if request.method == 'POST':
         form = ProdutoForm(request.POST)
@@ -46,7 +47,7 @@ produtos = Produto.objects.all()
 
 @login_required
 @login_required
-@permission_required('estoque.change_produto', raise_exception=True)
+@permission_required('estoque.change_produto', raise_exception=True)   # Essa função permite editar as informações de um produto existente
 def editar_produto(request, id):
     produto = get_object_or_404(Produto, pk=id)
     if request.method == 'POST':
@@ -60,7 +61,7 @@ def editar_produto(request, id):
 produtos = Produto.objects.all()
 
 @login_required
-@permission_required('estoque.delete_produto', raise_exception=True)
+@permission_required('estoque.delete_produto', raise_exception=True)  # Essa função permite excluir um produto do sistema
 def excluir_produto(request, id):
     produto = get_object_or_404(Produto, pk=id)
     if request.method == 'POST':
@@ -70,7 +71,7 @@ def excluir_produto(request, id):
 produtos = Produto.objects.all()
 
 @login_required
-def dashboard(request):
+def dashboard(request):   # Essa função gera os dados para o dashboard, com gráficos de categorias e produtos
     produtos = Produto.objects.all()
 
     categorias = ['alimentos', 'limpeza', 'vestuario', 'bazar']
@@ -96,10 +97,10 @@ def dashboard(request):
 }
 
 
-    return render(request, 'estoque/dashboard.html', context)
+    return render(request, 'estoque/dashboard.html', context)   # Essa função gera os dados para o dashboard, com gráficos de categorias e produtos
 
 @login_required
-def exportar_excel(request):
+def exportar_excel(request):   # Essa função gera um arquivo Excel com os dados dos produtos
     produtos = Produto.objects.all()
 
     # Criar workbook
@@ -135,7 +136,7 @@ def exportar_excel(request):
 produtos = Produto.objects.all()
 
 @login_required
-def exportar_pdf(request):
+def exportar_pdf(request):   # Essa função gera um PDF com os dados dos produtos
     produtos = Produto.objects.all()
 
     response = HttpResponse(content_type='application/pdf')
